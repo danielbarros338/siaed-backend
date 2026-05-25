@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Siaed.Api/SiaedBackend.Api.csproj" />
+  <Project Path="Siaed.Application/Siaed.Application.csproj" />
+  <Project Path="Siaed.Domain/Siaed.Domain.csproj" />
+  <Project Path="Siaed.Infra/Siaed.Infra.csproj" />
+</Solution>

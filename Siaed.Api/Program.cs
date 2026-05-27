@@ -1,8 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Siaed.Api.DependencyInjection;
 using Siaed.Api.Middlewares;
 using Siaed.Application.DependencyInjection;
 using Siaed.Infra.DependencyInjection;
+using Siaed.Infra.Persistence;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -22,6 +24,15 @@ try
         .AddInfrastructure(builder.Configuration);
 
     var app = builder.Build();
+
+    if (args.Contains("--migrate-database", StringComparer.OrdinalIgnoreCase))
+    {
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.Database.Migrate();
+        Log.Information("Migrations do banco de dados aplicadas com sucesso");
+        return;
+    }
 
     if (app.Environment.IsDevelopment())
     {

@@ -70,8 +70,10 @@ O arquivo `docker-compose.yml` sobe a API e um container MySQL. Antes de executa
 
 - `MYSQL_PASSWORD`
 - `MYSQL_ROOT_PASSWORD`
-- `JWT_KEY`
-- `OPENAI_API_KEY`
+- `Jwt__Key`
+- `Jwt__Issuer`
+- `Jwt__Audience`
+- `OpenAI__ApiKey`
 
 Para subir o ambiente:
 

@@ -119,11 +119,22 @@ EOF
 
                             docker network inspect nginx_net >/dev/null 2>&1 || docker network create nginx_net
 
-                            if ! docker compose --env-file .env up -d --build --force-recreate --remove-orphans; then
+                            docker compose --env-file .env stop logosnext-api >/dev/null 2>&1 || true
+
+                            if ! docker compose --env-file .env --profile migrations build logosnext-api logosnext-migrations \
+                                || ! docker compose --env-file .env up -d logosnext-db \
+                                || ! docker compose --env-file .env --profile migrations run --rm logosnext-migrations \
+                                || ! docker compose --env-file .env up -d --remove-orphans logosnext-api; then
                                 echo "Falha ao subir stack. Estado dos containers:"
                                 docker compose --env-file .env ps || true
                                 echo "Logs do MySQL:"
                                 docker compose --env-file .env logs logosnext-db || true
+                                echo "Logs da API:"
+                                docker compose --env-file .env logs logosnext-api || true
+                                echo "Volumes Docker relacionados:"
+                                docker volume ls | grep -E 'logosnext|siaed|mysql' || true
+                                echo "Se o MySQL reportar tabelas mysql.* ausentes, o volume de dados provavelmente esta corrompido ou foi inicializado parcialmente."
+                                echo "Nao remova volumes em producao sem backup."
                                 exit 1
                             fi
 EOSSH

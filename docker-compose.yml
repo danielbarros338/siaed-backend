@@ -24,6 +24,27 @@ services:
       - nginx_net
       - logosnext-backend
 
+  logosnext-migrations:
+    build:
+      context: .
+      dockerfile: Siaed.Api/Dockerfile
+    command: ["--migrate-database"]
+    profiles:
+      - migrations
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Server=logosnext-db;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
+      Jwt__Key: ${Jwt__Key:?set Jwt__Key}
+      Jwt__Issuer: ${Jwt__Issuer:-siaed}
+      Jwt__Audience: ${Jwt__Audience:-siaed}
+      OpenAI__ApiKey: ${OpenAI__ApiKey:?set OpenAI__ApiKey}
+    depends_on:
+      logosnext-db:
+        condition: service_healthy
+    networks:
+      - logosnext-backend
+
   logosnext-db:
     container_name: logosnext-db
     image: mysql:8.4

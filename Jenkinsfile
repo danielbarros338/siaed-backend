@@ -66,11 +66,8 @@ EOF
                             ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} "mkdir -p '${REMOTE_APP_DIR}'"
                             scp -o StrictHostKeyChecking=no "$TEMP_ENV_FILE" ${PROD_USER}@${PROD_HOST}:${REMOTE_APP_DIR}/.env
 
-                            ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} '
+                            ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} "APP_DIR='${REMOTE_APP_DIR}' REPO_URL='${REMOTE_REPO_URL}' BRANCH_NAME='${GIT_BRANCH}' bash -se" <<'EOSSH'
                             set -e
-                            APP_DIR="${REMOTE_APP_DIR}"
-                            REPO_URL="${REMOTE_REPO_URL}"
-                            BRANCH_NAME="${GIT_BRANCH}"
 
                             command -v git >/dev/null 2>&1 || { echo "git nao instalado na VPS"; exit 1; }
                             command -v docker >/dev/null 2>&1 || { echo "docker nao instalado na VPS"; exit 1; }
@@ -109,7 +106,7 @@ EOF
 
                             docker network inspect nginx_net >/dev/null 2>&1 || docker network create nginx_net
                             docker compose up -d --build --force-recreate --remove-orphans
-                            '
+EOSSH
                         '''
                     }
                 }

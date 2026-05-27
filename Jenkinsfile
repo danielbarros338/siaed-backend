@@ -57,7 +57,7 @@ pipeline {
                             # Docker Compose interpreta $ em valores do .env.
                             # Escapamos para $$ para preservar segredos literais.
                             escape_for_compose_env() {
-                                printf '%s' "$1" | sed 's/\$/$$/g'
+                                printf '%s' "$1" | sed 's/[$]/$$/g'
                             }
 
                             MYSQL_PASSWORD_ESCAPED=$(escape_for_compose_env "$MYSQL_PASSWORD")

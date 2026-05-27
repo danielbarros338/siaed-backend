@@ -54,13 +54,26 @@ pipeline {
                             TEMP_ENV_FILE=$(mktemp)
                             trap 'rm -f "$TEMP_ENV_FILE"' EXIT
 
+                            # Docker Compose interpreta $ em valores do .env.
+                            # Escapamos para $$ para preservar segredos literais.
+                            escape_for_compose_env() {
+                                printf '%s' "$1" | sed 's/\$/$$/g'
+                            }
+
+                            MYSQL_PASSWORD_ESCAPED=$(escape_for_compose_env "$MYSQL_PASSWORD")
+                            MYSQL_ROOT_PASSWORD_ESCAPED=$(escape_for_compose_env "$MYSQL_ROOT_PASSWORD")
+                            JWT_KEY_ESCAPED=$(escape_for_compose_env "$Jwt__Key")
+                            JWT_ISSUER_ESCAPED=$(escape_for_compose_env "$Jwt__Issuer")
+                            JWT_AUDIENCE_ESCAPED=$(escape_for_compose_env "$Jwt__Audience")
+                            OPENAI_API_KEY_ESCAPED=$(escape_for_compose_env "$OpenAI__ApiKey")
+
                             cat > "$TEMP_ENV_FILE" <<EOF
-MYSQL_PASSWORD=${MYSQL_PASSWORD}
-MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-Jwt__Key=${Jwt__Key}
-Jwt__Issuer=${Jwt__Issuer}
-Jwt__Audience=${Jwt__Audience}
-OpenAI__ApiKey=${OpenAI__ApiKey}
+MYSQL_PASSWORD=${MYSQL_PASSWORD_ESCAPED}
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD_ESCAPED}
+Jwt__Key=${JWT_KEY_ESCAPED}
+Jwt__Issuer=${JWT_ISSUER_ESCAPED}
+Jwt__Audience=${JWT_AUDIENCE_ESCAPED}
+OpenAI__ApiKey=${OPENAI_API_KEY_ESCAPED}
 EOF
 
                             ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} "mkdir -p '${REMOTE_APP_DIR}'"
@@ -105,7 +118,14 @@ EOF
                             git rev-parse --short HEAD
 
                             docker network inspect nginx_net >/dev/null 2>&1 || docker network create nginx_net
-                            docker compose up -d --build --force-recreate --remove-orphans
+
+                            if ! docker compose --env-file .env up -d --build --force-recreate --remove-orphans; then
+                                echo "Falha ao subir stack. Estado dos containers:"
+                                docker compose --env-file .env ps || true
+                                echo "Logs do MySQL:"
+                                docker compose --env-file .env logs logosnext-db || true
+                                exit 1
+                            fi
 EOSSH
                         '''
                     }

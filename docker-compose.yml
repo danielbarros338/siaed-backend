@@ -8,10 +8,10 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: Server=logosnext-db;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
-      Jwt__Key: ${JWT_KEY:?set JWT_KEY}
-      Jwt__Issuer: ${JWT_ISSUER:-siaed}
-      Jwt__Audience: ${JWT_AUDIENCE:-siaed}
-      OpenAI__ApiKey: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
+      Jwt__Key: ${Jwt__Key:?set Jwt__Key}
+      Jwt__Issuer: ${Jwt__Issuer:-siaed}
+      Jwt__Audience: ${Jwt__Audience:-siaed}
+      OpenAI__ApiKey: ${OpenAI__ApiKey:?set OpenAI__ApiKey}
     ports:
       - "8080:8080"
     depends_on:

@@ -48,13 +48,13 @@ pipeline {
                     string(credentialsId: env.OPENAI__APIKEY_CREDENTIAL, variable: 'OpenAI__ApiKey')
                 ]) {
                     sshagent(credentials: [env.SSH_CREDENTIALS]) {
-                        sh """
+                        sh '''
                             set -e
 
-                            TEMP_ENV_FILE=\$(mktemp)
-                            trap 'rm -f "\$TEMP_ENV_FILE"' EXIT
+                            TEMP_ENV_FILE=$(mktemp)
+                            trap 'rm -f "$TEMP_ENV_FILE"' EXIT
 
-                            cat > "\$TEMP_ENV_FILE" <<EOF
+                            cat > "$TEMP_ENV_FILE" <<EOF
 MYSQL_PASSWORD=${MYSQL_PASSWORD}
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 Jwt__Key=${Jwt__Key}
@@ -64,7 +64,7 @@ OpenAI__ApiKey=${OpenAI__ApiKey}
 EOF
 
                             ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} "mkdir -p '${REMOTE_APP_DIR}'"
-                            scp -o StrictHostKeyChecking=no "\$TEMP_ENV_FILE" ${PROD_USER}@${PROD_HOST}:${REMOTE_APP_DIR}/.env
+                            scp -o StrictHostKeyChecking=no "$TEMP_ENV_FILE" ${PROD_USER}@${PROD_HOST}:${REMOTE_APP_DIR}/.env
 
                             ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} '
                             set -e
@@ -110,7 +110,7 @@ EOF
                             docker network inspect nginx_net >/dev/null 2>&1 || docker network create nginx_net
                             docker compose up -d --build --force-recreate --remove-orphans
                             '
-                        """
+                        '''
                     }
                 }
             }

@@ -31,21 +31,31 @@ try
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         const int maxRetries = 10;
+        Exception? lastException = null;
+
         for (var attempt = 1; attempt <= maxRetries; attempt++)
         {
             try
             {
                 dbContext.Database.Migrate();
                 Log.Information("Migrations do banco de dados aplicadas com sucesso");
+                Log.CloseAndFlush();
+                Environment.Exit(0);
                 return;
             }
-            catch (Exception ex) when (attempt < maxRetries)
+            catch (Exception ex)
             {
+                lastException = ex;
                 Log.Warning(ex, "Falha ao aplicar migrations (tentativa {Attempt}/{MaxRetries}). Aguardando 5s...", attempt, maxRetries);
-                await Task.Delay(TimeSpan.FromSeconds(5));
+
+                if (attempt < maxRetries)
+                    await Task.Delay(TimeSpan.FromSeconds(5));
             }
         }
 
+        Log.Fatal(lastException, "Todas as tentativas de migration falharam. Abortando.");
+        Log.CloseAndFlush();
+        Environment.Exit(1);
         return;
     }
 

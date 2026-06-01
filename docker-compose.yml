@@ -6,23 +6,19 @@ services:
       dockerfile: Siaed.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Server=logosnext-db;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
+      ASPNETCORE_URLS: http://+:7142
+      ConnectionStrings__DefaultConnection: Server=mysql_server;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
       Jwt__Key: ${Jwt__Key:?set Jwt__Key}
       Jwt__Issuer: ${Jwt__Issuer:-siaed}
       Jwt__Audience: ${Jwt__Audience:-siaed}
       OpenAI__ApiKey: ${OpenAI__ApiKey:?set OpenAI__ApiKey}
     ports:
-      - "8080:8080"
-    depends_on:
-      logosnext-db:
-        condition: service_healthy
+      - "7142:7142"
     restart: unless-stopped
     volumes:
       - logosnext-api-logs:/app/logs
     networks:
       - nginx_net
-      - logosnext-backend
 
   logosnext-migrations:
     build:
@@ -33,48 +29,18 @@ services:
       - migrations
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Server=logosnext-db;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
+      ASPNETCORE_URLS: http://+:7142
+      ConnectionStrings__DefaultConnection: Server=mysql_server;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
       Jwt__Key: ${Jwt__Key:?set Jwt__Key}
       Jwt__Issuer: ${Jwt__Issuer:-siaed}
       Jwt__Audience: ${Jwt__Audience:-siaed}
       OpenAI__ApiKey: ${OpenAI__ApiKey:?set OpenAI__ApiKey}
-    depends_on:
-      logosnext-db:
-        condition: service_healthy
     networks:
-      - logosnext-backend
-
-  logosnext-db:
-    container_name: logosnext-db
-    image: mysql:8.4
-    command:
-      - --mysql-native-password=ON
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-    environment:
-      MYSQL_DATABASE: siaed
-      MYSQL_USER: siaed
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD}
-    volumes:
-      - logosnext-mysql-data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
-    restart: unless-stopped
-    networks:
-      - logosnext-backend
+      - nginx_net
 
 volumes:
   logosnext-api-logs:
-  logosnext-mysql-data:
 
 networks:
   nginx_net:
     external: true
-  logosnext-backend:
-    driver: bridge

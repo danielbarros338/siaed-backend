@@ -29,8 +29,23 @@ try
     {
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        dbContext.Database.Migrate();
-        Log.Information("Migrations do banco de dados aplicadas com sucesso");
+
+        const int maxRetries = 10;
+        for (var attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                dbContext.Database.Migrate();
+                Log.Information("Migrations do banco de dados aplicadas com sucesso");
+                return;
+            }
+            catch (Exception ex) when (attempt < maxRetries)
+            {
+                Log.Warning(ex, "Falha ao aplicar migrations (tentativa {Attempt}/{MaxRetries}). Aguardando 5s...", attempt, maxRetries);
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+        }
+
         return;
     }
 

@@ -1,9 +1,29 @@
 services:
+  siaed-migrations:
+    build:
+      context: .
+      dockerfile: Siaed.Api/Dockerfile
+    command: ["--migrate-database"]
+    restart: "no"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:7142
+      ConnectionStrings__DefaultConnection: Server=mysql_server;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
+      Jwt__Key: ${Jwt__Key:?set Jwt__Key}
+      Jwt__Issuer: ${Jwt__Issuer:-siaed}
+      Jwt__Audience: ${Jwt__Audience:-siaed}
+      OpenAI__ApiKey: ${OpenAI__ApiKey:?set OpenAI__ApiKey}
+    networks:
+      - nginx_net
+
   siaed-api:
     container_name: siaed-api
     build:
       context: .
       dockerfile: Siaed.Api/Dockerfile
+    depends_on:
+      siaed-migrations:
+        condition: service_completed_successfully
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:7142
@@ -17,24 +37,6 @@ services:
     restart: unless-stopped
     volumes:
       - siaed-api-logs:/app/logs
-    networks:
-      - nginx_net
-
-  siaed-migrations:
-    build:
-      context: .
-      dockerfile: Siaed.Api/Dockerfile
-    command: ["--migrate-database"]
-    profiles:
-      - migrations
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:7142
-      ConnectionStrings__DefaultConnection: Server=mysql_server;Port=3306;Database=siaed;User=siaed;Password=${MYSQL_PASSWORD:?set MYSQL_PASSWORD};TreatTinyAsBoolean=false;AllowPublicKeyRetrieval=True;
-      Jwt__Key: ${Jwt__Key:?set Jwt__Key}
-      Jwt__Issuer: ${Jwt__Issuer:-siaed}
-      Jwt__Audience: ${Jwt__Audience:-siaed}
-      OpenAI__ApiKey: ${OpenAI__ApiKey:?set OpenAI__ApiKey}
     networks:
       - nginx_net
 

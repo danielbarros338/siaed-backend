@@ -19,6 +19,10 @@ namespace Siaed.Infra.Migrations
                 name: "PK_TurmaTeachers",
                 table: "TurmaTeachers");
 
+            migrationBuilder.DropForeignKey(
+                name: "FK_TurmaTeachers_Turmas_TurmaId",
+                table: "TurmaTeachers");
+
             migrationBuilder.DropIndex(
                 name: "IX_TurmaTeachers_TurmaId",
                 table: "TurmaTeachers");

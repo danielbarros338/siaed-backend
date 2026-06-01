@@ -147,7 +147,7 @@ public sealed class UpdateGradeHandler : IRequestHandler<UpdateGradeCommand, Res
         if (authResult.IsFailure)
             return Result<GradeDto>.Failure(authResult.Errors);
 
-        var currentVersion = Convert.ToBase64String(grade.Version);
+        var currentVersion = grade.Version.ToString("O");
         if (!string.Equals(currentVersion, request.Version, StringComparison.Ordinal))
             return Result.Failure<GradeDto>("Conflito de concorrencia detectado. Recarregue a nota antes de salvar novamente.");
 
@@ -169,7 +169,7 @@ public sealed class UpdateGradeHandler : IRequestHandler<UpdateGradeCommand, Res
             grade.ConventionKey,
             grade.CreatedAt,
             grade.UpdatedAt,
-            Convert.ToBase64String(grade.Version)));
+            grade.Version.ToString("O")));
     }
 
     private async Task<Result> AuthorizeWriteAsync(Guid requestingUserId, Activity activity, CancellationToken ct)
@@ -306,7 +306,7 @@ public sealed class GetGradeByIdHandler : IRequestHandler<GetGradeByIdQuery, Res
             grade.ConventionKey,
             grade.CreatedAt,
             grade.UpdatedAt,
-            Convert.ToBase64String(grade.Version)));
+            grade.Version.ToString("O")));
     }
 
     private async Task<Result> AuthorizeReadAsync(Guid requestingUserId, Activity activity, CancellationToken ct)

@@ -8,7 +8,7 @@ public sealed class Grade : BaseEntity
     public Guid TeacherId { get; private set; }
     public string GradeValue { get; private set; } = string.Empty;
     public string ConventionKey { get; private set; } = string.Empty;
-    public byte[] Version { get; private set; } = Array.Empty<byte>();
+    public DateTime Version { get; private set; }
 
     private Grade() { }
 

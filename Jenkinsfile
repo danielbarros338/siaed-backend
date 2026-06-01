@@ -119,15 +119,15 @@ EOF
 
                             docker network inspect nginx_net >/dev/null 2>&1 || docker network create nginx_net
 
-                            docker compose --env-file .env stop logosnext-api >/dev/null 2>&1 || true
+                            docker compose --env-file .env stop siaed-api >/dev/null 2>&1 || true
 
-                            if ! docker compose --env-file .env --profile migrations build logosnext-api logosnext-migrations \
-                                || ! docker compose --env-file .env --profile migrations run --rm logosnext-migrations \
-                                || ! docker compose --env-file .env up -d --remove-orphans logosnext-api; then
+                            if ! docker compose --env-file .env --profile migrations build siaed-api siaed-migrations \
+                                || ! docker compose --env-file .env --profile migrations run --rm siaed-migrations \
+                                || ! docker compose --env-file .env up -d --remove-orphans siaed-api; then
                                 echo "Falha ao subir stack. Estado dos containers:"
                                 docker compose --env-file .env ps || true
                                 echo "Logs da API:"
-                                docker compose --env-file .env logs logosnext-api || true
+                                docker compose --env-file .env logs siaed-api || true
                                 exit 1
                             fi
 EOSSH

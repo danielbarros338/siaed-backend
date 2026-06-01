@@ -1,6 +1,6 @@
 services:
-  logosnext-api:
-    container_name: logosnext-api
+  siaed-api:
+    container_name: siaed-api
     build:
       context: .
       dockerfile: Siaed.Api/Dockerfile
@@ -16,11 +16,11 @@ services:
       - "7142:7142"
     restart: unless-stopped
     volumes:
-      - logosnext-api-logs:/app/logs
+      - siaed-api-logs:/app/logs
     networks:
       - nginx_net
 
-  logosnext-migrations:
+  siaed-migrations:
     build:
       context: .
       dockerfile: Siaed.Api/Dockerfile
@@ -39,7 +39,7 @@ services:
       - nginx_net
 
 volumes:
-  logosnext-api-logs:
+  siaed-api-logs:
 
 networks:
   nginx_net:

@@ -60,6 +60,7 @@ pipeline {
                     string(credentialsId: env.JWT__ISSUER_CREDENTIAL, variable: 'Jwt__Issuer'),
                     string(credentialsId: env.JWT__AUDIENCE_CREDENTIAL, variable: 'Jwt__Audience'),
                     string(credentialsId: env.OPENAI__APIKEY_CREDENTIAL, variable: 'OpenAI__ApiKey'),
+                    string(credentialsId: env.URL_API, variable: 'UrlApi'),
                     string(credentialsId: env.EMAIL__EMAILSETTINGS__HOST, variable: 'Email__EmailSettings__Host'),
                     string(credentialsId: env.EMAIL__EMAILSETTINGS__PORT, variable: 'Email__EmailSettings__Port'),
                     string(credentialsId: env.EMAIL__EMAILSETTINGS__USERNAME, variable: 'Email__EmailSettings__Username'),
@@ -93,6 +94,7 @@ pipeline {
                             JWT_ISSUER_ESCAPED=$(escape_for_compose_env "$Jwt__Issuer")
                             JWT_AUDIENCE_ESCAPED=$(escape_for_compose_env "$Jwt__Audience")
                             OPENAI_API_KEY_ESCAPED=$(escape_for_compose_env "$OpenAI__ApiKey")
+                            URL_API_ESCAPED=$(escape_for_compose_env "$UrlApi")
                             EMAIL_SETTINGS_HOST_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Host")
                             EMAIL_SETTINGS_PORT_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Port")
                             EMAIL_SETTINGS_USERNAME_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Username")
@@ -107,6 +109,36 @@ pipeline {
                             EMAIL_CLIENT_GMAIL_CLIENT_SECRET_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__ClientSecret")
                             EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__JavascriptOrigins")
 
+                            require_non_empty() {
+                                VAR_NAME="$1"
+                                VAR_VALUE="$2"
+
+                                if [ -z "$VAR_VALUE" ]; then
+                                    echo "Credencial obrigatoria vazia: $VAR_NAME"
+                                    exit 1
+                                fi
+                            }
+
+                            require_non_empty "MYSQL_PASSWORD" "$MYSQL_PASSWORD"
+                            require_non_empty "MYSQL_ROOT_PASSWORD" "$MYSQL_ROOT_PASSWORD"
+                            require_non_empty "Jwt__Key" "$Jwt__Key"
+                            require_non_empty "Jwt__Issuer" "$Jwt__Issuer"
+                            require_non_empty "Jwt__Audience" "$Jwt__Audience"
+                            require_non_empty "OpenAI__ApiKey" "$OpenAI__ApiKey"
+                            require_non_empty "UrlApi" "$UrlApi"
+                            require_non_empty "Email__EmailSettings__Host" "$Email__EmailSettings__Host"
+                            require_non_empty "Email__EmailSettings__Port" "$Email__EmailSettings__Port"
+                            require_non_empty "Email__EmailSettings__Username" "$Email__EmailSettings__Username"
+                            require_non_empty "Email__EmailSettings__Password" "$Email__EmailSettings__Password"
+                            require_non_empty "Email__EmailSettings__From" "$Email__EmailSettings__From"
+
+                            case "$Email__EmailSettings__Port" in
+                                ''|*[!0-9]*)
+                                    echo "Credencial invalida: Email__EmailSettings__Port deve ser numerica"
+                                    exit 1
+                                    ;;
+                            esac
+
                             cat > "$TEMP_ENV_FILE" <<EOF
                             MYSQL_PASSWORD=${MYSQL_PASSWORD_ESCAPED}
                             MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD_ESCAPED}
@@ -114,6 +146,7 @@ pipeline {
                             Jwt__Issuer=${JWT_ISSUER_ESCAPED}
                             Jwt__Audience=${JWT_AUDIENCE_ESCAPED}
                             OpenAI__ApiKey=${OPENAI_API_KEY_ESCAPED}
+                            UrlApi=${URL_API_ESCAPED}
                             Email__EmailSettings__Host=${EMAIL_SETTINGS_HOST_ESCAPED}
                             Email__EmailSettings__Port=${EMAIL_SETTINGS_PORT_ESCAPED}
                             Email__EmailSettings__Username=${EMAIL_SETTINGS_USERNAME_ESCAPED}

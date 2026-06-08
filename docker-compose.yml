@@ -32,6 +32,20 @@ services:
       Jwt__Issuer: ${Jwt__Issuer:-siaed}
       Jwt__Audience: ${Jwt__Audience:-siaed}
       OpenAI__ApiKey: ${OpenAI__ApiKey:?set OpenAI__ApiKey}
+      UrlApi: ${UrlApi:?set UrlApi}
+      Email__EmailSettings__Host: ${Email__EmailSettings__Host:?set Email__EmailSettings__Host}
+      Email__EmailSettings__Port: ${Email__EmailSettings__Port:?set Email__EmailSettings__Port}
+      Email__EmailSettings__Username: ${Email__EmailSettings__Username:?set Email__EmailSettings__Username}
+      Email__EmailSettings__Password: ${Email__EmailSettings__Password:?set Email__EmailSettings__Password}
+      Email__EmailSettings__From: ${Email__EmailSettings__From:?set Email__EmailSettings__From}
+      Email__EmailSettings__DisplayName: ${Email__EmailSettings__DisplayName:-SIAED}
+      Email__ClientGmail__ClientId: ${Email__ClientGmail__ClientId:-}
+      Email__ClientGmail__ProjectId: ${Email__ClientGmail__ProjectId:-}
+      Email__ClientGmail__AuthUri: ${Email__ClientGmail__AuthUri:-}
+      Email__ClientGmail__TokenUri: ${Email__ClientGmail__TokenUri:-}
+      Email__ClientGmail__AuthProviderX509CertUrl: ${Email__ClientGmail__AuthProviderX509CertUrl:-}
+      Email__ClientGmail__ClientSecret: ${Email__ClientGmail__ClientSecret:-}
+      Email__ClientGmail__JavascriptOrigins__0: ${Email__ClientGmail__JavascriptOrigins:-}
     ports:
       - "7142:7142"
     restart: unless-stopped

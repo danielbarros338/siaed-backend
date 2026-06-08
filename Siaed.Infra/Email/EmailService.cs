@@ -32,10 +32,31 @@ namespace Siaed.Infra.Email
         {
             try
             {
+                var displayName = _configuration["Email:EmailSettings:DisplayName"];
+                var from = _configuration["Email:EmailSettings:From"];
+                var host = _configuration["Email:EmailSettings:Host"];
+                var portRaw = _configuration["Email:EmailSettings:Port"];
+                var username = _configuration["Email:EmailSettings:Username"];
+                var password = _configuration["Email:EmailSettings:Password"];
+
+                if (string.IsNullOrWhiteSpace(from) ||
+                    string.IsNullOrWhiteSpace(host) ||
+                    string.IsNullOrWhiteSpace(portRaw) ||
+                    string.IsNullOrWhiteSpace(username) ||
+                    string.IsNullOrWhiteSpace(password))
+                {
+                    throw new InvalidOperationException("Configuração de e-mail incompleta. Verifique Email:EmailSettings (Host, Port, Username, Password e From).");
+                }
+
+                if (!int.TryParse(portRaw, out var port))
+                {
+                    throw new InvalidOperationException("Configuração de e-mail inválida. Email:EmailSettings:Port deve ser numérico.");
+                }
+
                 var message = new MimeMessage();
                 var mailboxAddress = new MailboxAddress(
-                    _configuration["Email:EmailSettings:DisplayName"],
-                    _configuration["Email:EmailSettings:From"]
+                    displayName,
+                    from
                 );
 
                 message.From.Add(mailboxAddress);
@@ -46,15 +67,15 @@ namespace Siaed.Infra.Email
                 using var smtp = new SmtpClient();
 
                 await smtp.ConnectAsync(
-                    _configuration["Email:EmailSettings:Host"],
-                    int.Parse(_configuration["Email:EmailSettings:Port"]),
+                    host,
+                    port,
                     SecureSocketOptions.StartTls,
                     cancellationToken
                 );
 
                 await smtp.AuthenticateAsync(
-                    _configuration["Email:EmailSettings:Username"],
-                    _configuration["Email:EmailSettings:Password"],
+                    username,
+                    password,
                     cancellationToken
                 );
 

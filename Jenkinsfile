@@ -2,18 +2,32 @@ pipeline {
     agent any
 
     environment {
-        GIT_BRANCH      = "${env.BRANCH_NAME ?: 'main'}"
-        PROD_HOST       = 'logosnext.com.br'
-        PROD_USER       = 'root'
-        SSH_CREDENTIALS = 'ssh-prod-server'
-        REMOTE_APP_DIR  = "${env.REMOTE_APP_DIR ?: '/root/siaed-backend'}"
-        REMOTE_REPO_URL = "${env.GIT_URL ?: 'https://github.com/danielbarros338/siaed-backend'}"
-        MYSQL_PASSWORD_CREDENTIAL      = 'siaed-mysql-password'
-        MYSQL_ROOT_PASSWORD_CREDENTIAL = 'siaed-mysql-root-password'
-        JWT__KEY_CREDENTIAL            = 'siaed-jwt-key'
-        JWT__ISSUER_CREDENTIAL         = 'siaed-jwt-issuer'
-        JWT__AUDIENCE_CREDENTIAL       = 'siaed-jwt-audience'
-        OPENAI__APIKEY_CREDENTIAL      = 'siaed-openai-apikey'
+        GIT_BRANCH                                      = "${env.BRANCH_NAME ?: 'main'}"
+        PROD_HOST                                       = 'logosnext.com.br'
+        PROD_USER                                       = 'root'
+        SSH_CREDENTIALS                                 = 'ssh-prod-server'
+        REMOTE_APP_DIR                                  = "${env.REMOTE_APP_DIR ?: '/root/siaed-backend'}"
+        REMOTE_REPO_URL                                 = "${env.GIT_URL ?: 'https://github.com/danielbarros338/siaed-backend'}"
+        MYSQL_PASSWORD_CREDENTIAL                       = 'siaed-mysql-password'
+        MYSQL_ROOT_PASSWORD_CREDENTIAL                  = 'siaed-mysql-root-password'
+        JWT__KEY_CREDENTIAL                             = 'siaed-jwt-key'
+        JWT__ISSUER_CREDENTIAL                          = 'siaed-jwt-issuer'
+        JWT__AUDIENCE_CREDENTIAL                        = 'siaed-jwt-audience'
+        OPENAI__APIKEY_CREDENTIAL                       = 'siaed-openai-apikey'
+        URL_API                                         = 'siaed_url_api'
+        EMAIL__EMAILSETTINGS__HOST                      = 'siaed_email_host'
+        EMAIL__EMAILSETTINGS__PORT                      = 'siaed_email_port'
+        EMAIL__EMAILSETTINGS__USERNAME                  = 'siaed_email_username'
+        EMAIL__EMAILSETTINGS__PASSWORD                  = 'siaed_email_password'
+        EMAIL__EMAILSETTINGS__FROM                      = 'siaed_email_from'
+        EMAIL__EMAILSETTINGS__DISPLAY_NAME              = 'siaed_email_display_name'
+        EMAIL__CLIENTGMAIL__CLIENT_ID                   = 'siaed_client_gmail_client_id'
+        EMAIL__CLIENTGMAIL__PROJECT_ID                  = 'siaed_client_gmail_project_id'
+        EMAIL__CLIENTGMAIL__AUTH_URI                    = 'siaed_client_gmail_auth_uri'
+        EMAIL__CLIENTGMAIL__TOKEN_URI                   = 'siaed_client_gmail_token_uri'
+        EMAIL__CLIENTGMAIL__AUTH_PROVIDER_X509_CERT_URL = 'siaed_client_gmail_auth_provider_x509_cert_url'
+        EMAIL__CLIENTGMAIL__CLIENT_SECRET               = 'siaed_client_gmail_client_secret'
+        EMAIL__CLIENTGMAIL__JAVASCRIPT_ORIGINS          = 'siaed_client_gmail_javascript_origins'
 
         HOME            = '/tmp'
         DOTNET_CLI_HOME = '/tmp'
@@ -45,7 +59,20 @@ pipeline {
                     string(credentialsId: env.JWT__KEY_CREDENTIAL, variable: 'Jwt__Key'),
                     string(credentialsId: env.JWT__ISSUER_CREDENTIAL, variable: 'Jwt__Issuer'),
                     string(credentialsId: env.JWT__AUDIENCE_CREDENTIAL, variable: 'Jwt__Audience'),
-                    string(credentialsId: env.OPENAI__APIKEY_CREDENTIAL, variable: 'OpenAI__ApiKey')
+                    string(credentialsId: env.OPENAI__APIKEY_CREDENTIAL, variable: 'OpenAI__ApiKey'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__HOST, variable: 'Email__EmailSettings__Host'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__PORT, variable: 'Email__EmailSettings__Port'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__USERNAME, variable: 'Email__EmailSettings__Username'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__PASSWORD, variable: 'Email__EmailSettings__Password'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__FROM, variable: 'Email__EmailSettings__From'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__DISPLAY_NAME, variable: 'Email__EmailSettings__DisplayName'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__CLIENT_ID, variable: 'Email__ClientGmail__ClientId'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__PROJECT_ID, variable: 'Email__ClientGmail__ProjectId'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__AUTH_URI, variable: 'Email__ClientGmail__AuthUri'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__TOKEN_URI, variable: 'Email__ClientGmail__TokenUri'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__AUTH_PROVIDER_X509_CERT_URL, variable: 'Email__ClientGmail__AuthProviderX509CertUrl'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__CLIENT_SECRET, variable: 'Email__ClientGmail__ClientSecret'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__JAVASCRIPT_ORIGINS, variable: 'Email__ClientGmail__JavascriptOrigins')
                 ]) {
                     sshagent(credentials: [env.SSH_CREDENTIALS]) {
                         sh '''
@@ -66,15 +93,41 @@ pipeline {
                             JWT_ISSUER_ESCAPED=$(escape_for_compose_env "$Jwt__Issuer")
                             JWT_AUDIENCE_ESCAPED=$(escape_for_compose_env "$Jwt__Audience")
                             OPENAI_API_KEY_ESCAPED=$(escape_for_compose_env "$OpenAI__ApiKey")
+                            EMAIL_SETTINGS_HOST_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Host")
+                            EMAIL_SETTINGS_PORT_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Port")
+                            EMAIL_SETTINGS_USERNAME_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Username")
+                            EMAIL_SETTINGS_PASSWORD_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Password")
+                            EMAIL_SETTINGS_FROM_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__From")
+                            EMAIL_SETTINGS_DISPLAY_NAME_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__DisplayName")
+                            EMAIL_CLIENT_GMAIL_CLIENT_ID_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__ClientId")
+                            EMAIL_CLIENT_GMAIL_PROJECT_ID_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__ProjectId")
+                            EMAIL_CLIENT_GMAIL_AUTH_URI_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__AuthUri")
+                            EMAIL_CLIENT_GMAIL_TOKEN_URI_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__TokenUri")
+                            EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__AuthProviderX509CertUrl")
+                            EMAIL_CLIENT_GMAIL_CLIENT_SECRET_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__ClientSecret")
+                            EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__JavascriptOrigins")
 
                             cat > "$TEMP_ENV_FILE" <<EOF
-MYSQL_PASSWORD=${MYSQL_PASSWORD_ESCAPED}
-MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD_ESCAPED}
-Jwt__Key=${JWT_KEY_ESCAPED}
-Jwt__Issuer=${JWT_ISSUER_ESCAPED}
-Jwt__Audience=${JWT_AUDIENCE_ESCAPED}
-OpenAI__ApiKey=${OPENAI_API_KEY_ESCAPED}
-EOF
+                            MYSQL_PASSWORD=${MYSQL_PASSWORD_ESCAPED}
+                            MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD_ESCAPED}
+                            Jwt__Key=${JWT_KEY_ESCAPED}
+                            Jwt__Issuer=${JWT_ISSUER_ESCAPED}
+                            Jwt__Audience=${JWT_AUDIENCE_ESCAPED}
+                            OpenAI__ApiKey=${OPENAI_API_KEY_ESCAPED}
+                            Email__EmailSettings__Host=${EMAIL_SETTINGS_HOST_ESCAPED}
+                            Email__EmailSettings__Port=${EMAIL_SETTINGS_PORT_ESCAPED}
+                            Email__EmailSettings__Username=${EMAIL_SETTINGS_USERNAME_ESCAPED}
+                            Email__EmailSettings__Password=${EMAIL_SETTINGS_PASSWORD_ESCAPED}
+                            Email__EmailSettings__From=${EMAIL_SETTINGS_FROM_ESCAPED}
+                            Email__EmailSettings__DisplayName=${EMAIL_SETTINGS_DISPLAY_NAME_ESCAPED}
+                            Email__ClientGmail__ClientId=${EMAIL_CLIENT_GMAIL_CLIENT_ID_ESCAPED}
+                            Email__ClientGmail__ProjectId=${EMAIL_CLIENT_GMAIL_PROJECT_ID_ESCAPED}
+                            Email__ClientGmail__AuthUri=${EMAIL_CLIENT_GMAIL_AUTH_URI_ESCAPED}
+                            Email__ClientGmail__TokenUri=${EMAIL_CLIENT_GMAIL_TOKEN_URI_ESCAPED}
+                            Email__ClientGmail__AuthProviderX509CertUrl=${EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_ESCAPED}
+                            Email__ClientGmail__ClientSecret=${EMAIL_CLIENT_GMAIL_CLIENT_SECRET_ESCAPED}
+                            Email__ClientGmail__JavascriptOrigins=${EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_ESCAPED}
+                            EOF
 
                             ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} "mkdir -p '${REMOTE_APP_DIR}'"
                             scp -o StrictHostKeyChecking=no "$TEMP_ENV_FILE" ${PROD_USER}@${PROD_HOST}:${REMOTE_APP_DIR}/.env

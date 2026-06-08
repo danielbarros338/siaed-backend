@@ -161,6 +161,10 @@ pipeline {
                             chmod 600 "$APP_DIR/.env"
                             cd "$APP_DIR"
 
+                            echo "Host de deploy: $(hostname)"
+                            echo "Diretorio de deploy: $APP_DIR"
+                            echo "Branch de deploy: $BRANCH_NAME"
+
                             echo "Commit antes:"
                             git rev-parse --short HEAD
 
@@ -171,10 +175,14 @@ pipeline {
                             echo "Commit depois:"
                             git rev-parse --short HEAD
 
+                            echo "Container atual (antes do restart):"
+                            docker ps --filter name=siaed-api --format 'table {{.Names}}\t{{.ID}}\t{{.Image}}\t{{.RunningFor}}' || true
+
                             docker network inspect nginx_net >/dev/null 2>&1 || docker network create nginx_net
 
                             if ! docker compose --env-file .env build --pull --no-cache siaed-migrations siaed-api \
-                                || ! docker compose --env-file .env up -d --force-recreate --remove-orphans; then
+                                || ! docker compose --env-file .env down --remove-orphans \
+                                || ! docker compose --env-file .env up -d --remove-orphans; then
                                 echo "Falha ao subir stack. Estado dos containers:"
                                 docker compose --env-file .env ps || true
                                 echo "Logs das migrations:"
@@ -186,6 +194,8 @@ pipeline {
 
                             echo "Estado final dos containers:"
                             docker compose --env-file .env ps
+                            echo "Container atual (apos deploy):"
+                            docker ps --filter name=siaed-api --format 'table {{.Names}}\t{{.ID}}\t{{.Image}}\t{{.RunningFor}}'
 EOSSH
                         '''
                     }

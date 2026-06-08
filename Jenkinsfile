@@ -164,16 +164,17 @@ pipeline {
                             echo "Commit antes:"
                             git rev-parse --short HEAD
 
-                            git fetch origin
-                            git reset --hard origin/$BRANCH_NAME
+                            git fetch --prune origin
+                            git checkout -B "$BRANCH_NAME" "origin/$BRANCH_NAME"
+                            git reset --hard "origin/$BRANCH_NAME"
 
                             echo "Commit depois:"
                             git rev-parse --short HEAD
 
                             docker network inspect nginx_net >/dev/null 2>&1 || docker network create nginx_net
 
-                            if ! docker compose --env-file .env build siaed-migrations siaed-api \
-                                || ! docker compose --env-file .env up -d --remove-orphans; then
+                            if ! docker compose --env-file .env build --pull --no-cache siaed-migrations siaed-api \
+                                || ! docker compose --env-file .env up -d --force-recreate --remove-orphans; then
                                 echo "Falha ao subir stack. Estado dos containers:"
                                 docker compose --env-file .env ps || true
                                 echo "Logs das migrations:"
@@ -182,6 +183,9 @@ pipeline {
                                 docker compose --env-file .env logs siaed-api || true
                                 exit 1
                             fi
+
+                            echo "Estado final dos containers:"
+                            docker compose --env-file .env ps
 EOSSH
                         '''
                     }

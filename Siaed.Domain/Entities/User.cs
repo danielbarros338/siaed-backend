@@ -9,6 +9,7 @@ public sealed class User : BaseEntity
     public string PasswordHash { get; private set; } = string.Empty;
     public UserRole Role { get; private set; }
     public bool IsActive { get; private set; } = true;
+    public string ActivationToken { get; private set; } = string.Empty;
 
     private User() { }
 
@@ -24,7 +25,7 @@ public sealed class User : BaseEntity
             Email = email.Trim().ToLowerInvariant(),
             PasswordHash = passwordHash,
             Role = role,
-            IsActive = true
+            IsActive = false
         };
     }
 
@@ -35,9 +36,22 @@ public sealed class User : BaseEntity
         MarkAsUpdated();
     }
 
+    public void Activate()
+    {
+        IsActive = true;
+        MarkAsUpdated();
+    }
+
     public void Deactivate()
     {
         IsActive = false;
+        MarkAsUpdated();
+    }
+
+    public void SetActivationToken(string token)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(token);
+        ActivationToken = token;
         MarkAsUpdated();
     }
 }

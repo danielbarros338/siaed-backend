@@ -4,6 +4,7 @@ using Siaed.Application.Features.Grades.Commands;
 using Siaed.Application.Features.Grades.DTOs;
 using Siaed.Application.Features.Grades.Queries;
 using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 using Siaed.Domain.Entities;
 using Siaed.Domain.Enums;
 

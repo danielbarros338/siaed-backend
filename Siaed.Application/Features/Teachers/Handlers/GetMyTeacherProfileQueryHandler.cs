@@ -2,7 +2,7 @@ using MediatR;
 using Siaed.Application.Common;
 using Siaed.Application.Features.Teachers.DTOs;
 using Siaed.Application.Features.Teachers.Queries;
-using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 using Siaed.Domain.Enums;
 
 namespace Siaed.Application.Features.Teachers.Handlers;

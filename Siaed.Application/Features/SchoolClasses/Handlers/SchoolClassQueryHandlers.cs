@@ -3,7 +3,7 @@ using Siaed.Application.Common;
 using Siaed.Application.Features.SchoolClasses.DTOs;
 using Siaed.Application.Features.SchoolClasses.Queries;
 using Siaed.Application.Features.Teachers.DTOs;
-using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 
 namespace Siaed.Application.Features.SchoolClasses.Handlers;
 

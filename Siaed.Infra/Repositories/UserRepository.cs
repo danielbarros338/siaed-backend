@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Siaed.Application.Common;
-using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 using Siaed.Domain.Entities;
 using Siaed.Domain.Enums;
 using Siaed.Infra.Persistence;
@@ -19,6 +19,10 @@ public sealed class UserRepository : IUserRepository
     public async Task<User?> GetByEmailAsync(string email, CancellationToken ct = default)
         => await _context.Users.FirstOrDefaultAsync(
             u => u.Email == email.ToLowerInvariant(), ct);
+
+    public async Task<User?> GetByActivationTokenAsync(string activationToken, CancellationToken ct = default)
+        => await _context.Users.FirstOrDefaultAsync(
+            u => u.ActivationToken == activationToken, ct);
 
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken ct = default)
         => await _context.Users.AnyAsync(
@@ -52,5 +56,11 @@ public sealed class UserRepository : IUserRepository
 
     public async Task AddAsync(User user, CancellationToken ct = default)
         => await _context.Users.AddAsync(user, ct);
+
+    public async Task UpdateAsync(User user, CancellationToken ct = default)
+    {
+        _context.Users.Update(user);
+        await Task.CompletedTask;
+    }
 }
 

@@ -2,6 +2,7 @@ using MediatR;
 using Siaed.Application.Common;
 using Siaed.Application.Features.LessonPlans.Commands;
 using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 
 namespace Siaed.Application.Features.LessonPlans.Handlers;
 

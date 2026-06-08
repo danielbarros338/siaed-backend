@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OpenAI.Chat;
-using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 
 namespace Siaed.Infra.OpenAI;
 

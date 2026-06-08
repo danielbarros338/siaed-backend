@@ -42,4 +42,19 @@ public sealed class AuthController : ControllerBase
             ? Ok(result.Value)
             : Unauthorized(result.Errors);
     }
+
+    /// <summary>
+    /// Ativa o email do usuário usando o token de ativação.
+    /// </summary>
+    [HttpGet("activate")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ActivateEmail([FromQuery] string token, CancellationToken ct)
+    {
+        var command = new ConfirmEmailCommand(token);
+        var result = await _mediator.Send(command, ct);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : BadRequest(result.Errors);
+    }
 }

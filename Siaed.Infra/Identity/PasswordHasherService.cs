@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 
 namespace Siaed.Infra.Identity;
 

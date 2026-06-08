@@ -2,6 +2,7 @@ using MediatR;
 using Siaed.Application.Common;
 using Siaed.Application.Features.Activities.Commands;
 using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 
 namespace Siaed.Application.Features.Activities.Handlers;
 

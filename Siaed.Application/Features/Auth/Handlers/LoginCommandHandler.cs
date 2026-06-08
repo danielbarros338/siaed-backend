@@ -3,6 +3,7 @@ using Siaed.Application.Common;
 using Siaed.Application.Features.Auth.Commands;
 using Siaed.Application.Features.Auth.DTOs;
 using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 
 namespace Siaed.Application.Features.Auth.Handlers;
 

@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
+using Siaed.Application.Interfaces.Services;
+using Siaed.Infra.Email;
 using Siaed.Infra.Identity;
 using Siaed.Infra.OpenAI;
 using Siaed.Infra.Persistence;
@@ -30,6 +33,8 @@ public static class InfraServiceExtensions
         services.AddScoped<IGradeRepository, GradeRepository>();
 
         services.AddScoped<IOpenAIService, OpenAIService>();
+        services.AddScoped<IEmailService, EmailService>();
+
         services.AddScoped<IPromptBuilder, PromptBuilderService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddSingleton<IPasswordHasher, PasswordHasherService>();

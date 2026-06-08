@@ -9,7 +9,5 @@ public sealed record RegisterCommand(
     string Name,
     string Email,
     string Password,
-    UserRole Role,
-    string? Subject = null,
-    string? SchoolId = null
-) : IRequest<Result<AuthResponseDto>>;
+    UserRole Role
+) : IRequest<Result<RegisterResponseDto>>;

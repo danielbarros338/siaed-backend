@@ -33,6 +33,10 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasDefaultValue(true);
 
+        builder.Property(u => u.ActivationToken)
+            .IsRequired()
+            .HasMaxLength(100);
+
         builder.HasQueryFilter(u => u.DeletedAt == null);
     }
 }

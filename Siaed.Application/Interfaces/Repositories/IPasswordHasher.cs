@@ -1,4 +1,4 @@
-namespace Siaed.Application.Interfaces;
+namespace Siaed.Application.Interfaces.Repositories;
 
 public interface IPasswordHasher
 {

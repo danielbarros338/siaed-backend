@@ -2,7 +2,7 @@ using Siaed.Application.Common;
 using Siaed.Domain.Entities;
 using Siaed.Domain.Enums;
 
-namespace Siaed.Application.Interfaces;
+namespace Siaed.Application.Interfaces.Repositories;
 
 public interface IStudentRepository
 {

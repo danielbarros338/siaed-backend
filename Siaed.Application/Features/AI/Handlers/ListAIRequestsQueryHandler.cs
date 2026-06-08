@@ -1,7 +1,7 @@
 using MediatR;
 using Siaed.Application.Common;
 using Siaed.Application.Features.AI.Queries;
-using Siaed.Application.Interfaces;
+using Siaed.Application.Interfaces.Repositories;
 
 namespace Siaed.Application.Features.AI.Handlers;
 

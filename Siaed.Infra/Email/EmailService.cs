@@ -17,7 +17,7 @@ namespace Siaed.Infra.Email
 
         public async Task SendConfirmEmail(string name, string email, string activationToken)
         {
-            var link = $"{_configuration["UrlApi"]}/auth/activate?token={activationToken}";
+            var link = $"{_configuration["UrlApi"]}/auth/activate?token={activationToken}"; // TODO: Trocar por página do front end
             var htmlBody = Templates.ConfirmEmailTemplate.GetTemplate(name, link);
 
             await SendAsync(email, "Confirmação de Email", htmlBody);

@@ -81,7 +81,8 @@ pipeline {
                             set +x
 
                             TEMP_ENV_FILE=$(mktemp)
-                            trap 'rm -f "$TEMP_ENV_FILE"' EXIT
+                            TEMP_MISSING_FILE=$(mktemp)
+                            trap 'rm -f "$TEMP_ENV_FILE" "$TEMP_MISSING_FILE"' EXIT
 
                             resolve_secret() {
                                 BOUND_VALUE="$1"
@@ -149,8 +150,7 @@ pipeline {
                                 SOURCE_NAME="$3"
 
                                 if [ -z "$VAR_VALUE" ]; then
-                                    echo "Variavel obrigatoria vazia: $VAR_NAME (credentialsId/env: $SOURCE_NAME)"
-                                    exit 1
+                                    printf '%s\n' " - $VAR_NAME (credentialsId/env: $SOURCE_NAME)" >> "$TEMP_MISSING_FILE"
                                 fi
                             }
 
@@ -166,6 +166,13 @@ pipeline {
                             require_non_empty "Email__EmailSettings__Username" "$EMAIL_SETTINGS_USERNAME_VALUE" "$EMAIL__EMAILSETTINGS__USERNAME"
                             require_non_empty "Email__EmailSettings__Password" "$EMAIL_SETTINGS_PASSWORD_VALUE" "$EMAIL__EMAILSETTINGS__PASSWORD"
                             require_non_empty "Email__EmailSettings__From" "$EMAIL_SETTINGS_FROM_VALUE" "$EMAIL__EMAILSETTINGS__FROM"
+
+                            if [ -s "$TEMP_MISSING_FILE" ]; then
+                                echo "Variaveis obrigatorias vazias no Jenkins:"
+                                cat "$TEMP_MISSING_FILE"
+                                echo "Corrija os valores como credenciais Secret text ou exponha variaveis de ambiente com esses nomes para este job."
+                                exit 1
+                            fi
 
                             case "$EMAIL_SETTINGS_PORT_VALUE" in
                                 ''|*[!0-9]*)

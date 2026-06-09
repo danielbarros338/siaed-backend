@@ -78,9 +78,43 @@ pipeline {
                     sshagent(credentials: [env.SSH_CREDENTIALS]) {
                         sh '''
                             set -e
+                            set +x
 
                             TEMP_ENV_FILE=$(mktemp)
                             trap 'rm -f "$TEMP_ENV_FILE"' EXIT
+
+                            resolve_secret() {
+                                BOUND_VALUE="$1"
+                                FALLBACK_ENV_NAME="$2"
+
+                                if [ -n "$BOUND_VALUE" ]; then
+                                    printf '%s' "$BOUND_VALUE"
+                                    return
+                                fi
+
+                                printenv "$FALLBACK_ENV_NAME" 2>/dev/null || true
+                            }
+
+                            MYSQL_PASSWORD_VALUE=$(resolve_secret "$MYSQL_PASSWORD" "$MYSQL_PASSWORD_CREDENTIAL")
+                            MYSQL_ROOT_PASSWORD_VALUE=$(resolve_secret "$MYSQL_ROOT_PASSWORD" "$MYSQL_ROOT_PASSWORD_CREDENTIAL")
+                            JWT_KEY_VALUE=$(resolve_secret "$Jwt__Key" "$JWT__KEY_CREDENTIAL")
+                            JWT_ISSUER_VALUE=$(resolve_secret "$Jwt__Issuer" "$JWT__ISSUER_CREDENTIAL")
+                            JWT_AUDIENCE_VALUE=$(resolve_secret "$Jwt__Audience" "$JWT__AUDIENCE_CREDENTIAL")
+                            OPENAI_API_KEY_VALUE=$(resolve_secret "$OpenAI__ApiKey" "$OPENAI__APIKEY_CREDENTIAL")
+                            URL_API_VALUE=$(resolve_secret "$UrlApi" "$URL_API")
+                            EMAIL_SETTINGS_HOST_VALUE=$(resolve_secret "$Email__EmailSettings__Host" "$EMAIL__EMAILSETTINGS__HOST")
+                            EMAIL_SETTINGS_PORT_VALUE=$(resolve_secret "$Email__EmailSettings__Port" "$EMAIL__EMAILSETTINGS__PORT")
+                            EMAIL_SETTINGS_USERNAME_VALUE=$(resolve_secret "$Email__EmailSettings__Username" "$EMAIL__EMAILSETTINGS__USERNAME")
+                            EMAIL_SETTINGS_PASSWORD_VALUE=$(resolve_secret "$Email__EmailSettings__Password" "$EMAIL__EMAILSETTINGS__PASSWORD")
+                            EMAIL_SETTINGS_FROM_VALUE=$(resolve_secret "$Email__EmailSettings__From" "$EMAIL__EMAILSETTINGS__FROM")
+                            EMAIL_SETTINGS_DISPLAY_NAME_VALUE=$(resolve_secret "$Email__EmailSettings__DisplayName" "$EMAIL__EMAILSETTINGS__DISPLAY_NAME")
+                            EMAIL_CLIENT_GMAIL_CLIENT_ID_VALUE=$(resolve_secret "$Email__ClientGmail__ClientId" "$EMAIL__CLIENTGMAIL__CLIENT_ID")
+                            EMAIL_CLIENT_GMAIL_PROJECT_ID_VALUE=$(resolve_secret "$Email__ClientGmail__ProjectId" "$EMAIL__CLIENTGMAIL__PROJECT_ID")
+                            EMAIL_CLIENT_GMAIL_AUTH_URI_VALUE=$(resolve_secret "$Email__ClientGmail__AuthUri" "$EMAIL__CLIENTGMAIL__AUTH_URI")
+                            EMAIL_CLIENT_GMAIL_TOKEN_URI_VALUE=$(resolve_secret "$Email__ClientGmail__TokenUri" "$EMAIL__CLIENTGMAIL__TOKEN_URI")
+                            EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_VALUE=$(resolve_secret "$Email__ClientGmail__AuthProviderX509CertUrl" "$EMAIL__CLIENTGMAIL__AUTH_PROVIDER_X509_CERT_URL")
+                            EMAIL_CLIENT_GMAIL_CLIENT_SECRET_VALUE=$(resolve_secret "$Email__ClientGmail__ClientSecret" "$EMAIL__CLIENTGMAIL__CLIENT_SECRET")
+                            EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_VALUE=$(resolve_secret "$Email__ClientGmail__JavascriptOrigins" "$EMAIL__CLIENTGMAIL__JAVASCRIPT_ORIGINS")
 
                             # Docker Compose interpreta $ em valores do .env.
                             # Escapamos para $$ para preservar segredos literais.
@@ -88,51 +122,52 @@ pipeline {
                                 printf '%s' "$1" | sed 's/[$]/$$/g'
                             }
 
-                            MYSQL_PASSWORD_ESCAPED=$(escape_for_compose_env "$MYSQL_PASSWORD")
-                            MYSQL_ROOT_PASSWORD_ESCAPED=$(escape_for_compose_env "$MYSQL_ROOT_PASSWORD")
-                            JWT_KEY_ESCAPED=$(escape_for_compose_env "$Jwt__Key")
-                            JWT_ISSUER_ESCAPED=$(escape_for_compose_env "$Jwt__Issuer")
-                            JWT_AUDIENCE_ESCAPED=$(escape_for_compose_env "$Jwt__Audience")
-                            OPENAI_API_KEY_ESCAPED=$(escape_for_compose_env "$OpenAI__ApiKey")
-                            URL_API_ESCAPED=$(escape_for_compose_env "$UrlApi")
-                            EMAIL_SETTINGS_HOST_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Host")
-                            EMAIL_SETTINGS_PORT_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Port")
-                            EMAIL_SETTINGS_USERNAME_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Username")
-                            EMAIL_SETTINGS_PASSWORD_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__Password")
-                            EMAIL_SETTINGS_FROM_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__From")
-                            EMAIL_SETTINGS_DISPLAY_NAME_ESCAPED=$(escape_for_compose_env "$Email__EmailSettings__DisplayName")
-                            EMAIL_CLIENT_GMAIL_CLIENT_ID_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__ClientId")
-                            EMAIL_CLIENT_GMAIL_PROJECT_ID_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__ProjectId")
-                            EMAIL_CLIENT_GMAIL_AUTH_URI_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__AuthUri")
-                            EMAIL_CLIENT_GMAIL_TOKEN_URI_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__TokenUri")
-                            EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__AuthProviderX509CertUrl")
-                            EMAIL_CLIENT_GMAIL_CLIENT_SECRET_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__ClientSecret")
-                            EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_ESCAPED=$(escape_for_compose_env "$Email__ClientGmail__JavascriptOrigins")
+                            MYSQL_PASSWORD_ESCAPED=$(escape_for_compose_env "$MYSQL_PASSWORD_VALUE")
+                            MYSQL_ROOT_PASSWORD_ESCAPED=$(escape_for_compose_env "$MYSQL_ROOT_PASSWORD_VALUE")
+                            JWT_KEY_ESCAPED=$(escape_for_compose_env "$JWT_KEY_VALUE")
+                            JWT_ISSUER_ESCAPED=$(escape_for_compose_env "$JWT_ISSUER_VALUE")
+                            JWT_AUDIENCE_ESCAPED=$(escape_for_compose_env "$JWT_AUDIENCE_VALUE")
+                            OPENAI_API_KEY_ESCAPED=$(escape_for_compose_env "$OPENAI_API_KEY_VALUE")
+                            URL_API_ESCAPED=$(escape_for_compose_env "$URL_API_VALUE")
+                            EMAIL_SETTINGS_HOST_ESCAPED=$(escape_for_compose_env "$EMAIL_SETTINGS_HOST_VALUE")
+                            EMAIL_SETTINGS_PORT_ESCAPED=$(escape_for_compose_env "$EMAIL_SETTINGS_PORT_VALUE")
+                            EMAIL_SETTINGS_USERNAME_ESCAPED=$(escape_for_compose_env "$EMAIL_SETTINGS_USERNAME_VALUE")
+                            EMAIL_SETTINGS_PASSWORD_ESCAPED=$(escape_for_compose_env "$EMAIL_SETTINGS_PASSWORD_VALUE")
+                            EMAIL_SETTINGS_FROM_ESCAPED=$(escape_for_compose_env "$EMAIL_SETTINGS_FROM_VALUE")
+                            EMAIL_SETTINGS_DISPLAY_NAME_ESCAPED=$(escape_for_compose_env "$EMAIL_SETTINGS_DISPLAY_NAME_VALUE")
+                            EMAIL_CLIENT_GMAIL_CLIENT_ID_ESCAPED=$(escape_for_compose_env "$EMAIL_CLIENT_GMAIL_CLIENT_ID_VALUE")
+                            EMAIL_CLIENT_GMAIL_PROJECT_ID_ESCAPED=$(escape_for_compose_env "$EMAIL_CLIENT_GMAIL_PROJECT_ID_VALUE")
+                            EMAIL_CLIENT_GMAIL_AUTH_URI_ESCAPED=$(escape_for_compose_env "$EMAIL_CLIENT_GMAIL_AUTH_URI_VALUE")
+                            EMAIL_CLIENT_GMAIL_TOKEN_URI_ESCAPED=$(escape_for_compose_env "$EMAIL_CLIENT_GMAIL_TOKEN_URI_VALUE")
+                            EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_ESCAPED=$(escape_for_compose_env "$EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_VALUE")
+                            EMAIL_CLIENT_GMAIL_CLIENT_SECRET_ESCAPED=$(escape_for_compose_env "$EMAIL_CLIENT_GMAIL_CLIENT_SECRET_VALUE")
+                            EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_ESCAPED=$(escape_for_compose_env "$EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_VALUE")
 
                             require_non_empty() {
                                 VAR_NAME="$1"
                                 VAR_VALUE="$2"
+                                SOURCE_NAME="$3"
 
                                 if [ -z "$VAR_VALUE" ]; then
-                                    echo "Credencial obrigatoria vazia: $VAR_NAME"
+                                    echo "Variavel obrigatoria vazia: $VAR_NAME (credentialsId/env: $SOURCE_NAME)"
                                     exit 1
                                 fi
                             }
 
-                            require_non_empty "MYSQL_PASSWORD" "$MYSQL_PASSWORD"
-                            require_non_empty "MYSQL_ROOT_PASSWORD" "$MYSQL_ROOT_PASSWORD"
-                            require_non_empty "Jwt__Key" "$Jwt__Key"
-                            require_non_empty "Jwt__Issuer" "$Jwt__Issuer"
-                            require_non_empty "Jwt__Audience" "$Jwt__Audience"
-                            require_non_empty "OpenAI__ApiKey" "$OpenAI__ApiKey"
-                            require_non_empty "UrlApi" "$UrlApi"
-                            require_non_empty "Email__EmailSettings__Host" "$Email__EmailSettings__Host"
-                            require_non_empty "Email__EmailSettings__Port" "$Email__EmailSettings__Port"
-                            require_non_empty "Email__EmailSettings__Username" "$Email__EmailSettings__Username"
-                            require_non_empty "Email__EmailSettings__Password" "$Email__EmailSettings__Password"
-                            require_non_empty "Email__EmailSettings__From" "$Email__EmailSettings__From"
+                            require_non_empty "MYSQL_PASSWORD" "$MYSQL_PASSWORD_VALUE" "$MYSQL_PASSWORD_CREDENTIAL"
+                            require_non_empty "MYSQL_ROOT_PASSWORD" "$MYSQL_ROOT_PASSWORD_VALUE" "$MYSQL_ROOT_PASSWORD_CREDENTIAL"
+                            require_non_empty "Jwt__Key" "$JWT_KEY_VALUE" "$JWT__KEY_CREDENTIAL"
+                            require_non_empty "Jwt__Issuer" "$JWT_ISSUER_VALUE" "$JWT__ISSUER_CREDENTIAL"
+                            require_non_empty "Jwt__Audience" "$JWT_AUDIENCE_VALUE" "$JWT__AUDIENCE_CREDENTIAL"
+                            require_non_empty "OpenAI__ApiKey" "$OPENAI_API_KEY_VALUE" "$OPENAI__APIKEY_CREDENTIAL"
+                            require_non_empty "UrlApi" "$URL_API_VALUE" "$URL_API"
+                            require_non_empty "Email__EmailSettings__Host" "$EMAIL_SETTINGS_HOST_VALUE" "$EMAIL__EMAILSETTINGS__HOST"
+                            require_non_empty "Email__EmailSettings__Port" "$EMAIL_SETTINGS_PORT_VALUE" "$EMAIL__EMAILSETTINGS__PORT"
+                            require_non_empty "Email__EmailSettings__Username" "$EMAIL_SETTINGS_USERNAME_VALUE" "$EMAIL__EMAILSETTINGS__USERNAME"
+                            require_non_empty "Email__EmailSettings__Password" "$EMAIL_SETTINGS_PASSWORD_VALUE" "$EMAIL__EMAILSETTINGS__PASSWORD"
+                            require_non_empty "Email__EmailSettings__From" "$EMAIL_SETTINGS_FROM_VALUE" "$EMAIL__EMAILSETTINGS__FROM"
 
-                            case "$Email__EmailSettings__Port" in
+                            case "$EMAIL_SETTINGS_PORT_VALUE" in
                                 ''|*[!0-9]*)
                                     echo "Credencial invalida: Email__EmailSettings__Port deve ser numerica"
                                     exit 1
@@ -140,27 +175,27 @@ pipeline {
                             esac
 
                             cat > "$TEMP_ENV_FILE" <<EOF
-                            MYSQL_PASSWORD=${MYSQL_PASSWORD_ESCAPED}
-                            MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD_ESCAPED}
-                            Jwt__Key=${JWT_KEY_ESCAPED}
-                            Jwt__Issuer=${JWT_ISSUER_ESCAPED}
-                            Jwt__Audience=${JWT_AUDIENCE_ESCAPED}
-                            OpenAI__ApiKey=${OPENAI_API_KEY_ESCAPED}
-                            UrlApi=${URL_API_ESCAPED}
-                            Email__EmailSettings__Host=${EMAIL_SETTINGS_HOST_ESCAPED}
-                            Email__EmailSettings__Port=${EMAIL_SETTINGS_PORT_ESCAPED}
-                            Email__EmailSettings__Username=${EMAIL_SETTINGS_USERNAME_ESCAPED}
-                            Email__EmailSettings__Password=${EMAIL_SETTINGS_PASSWORD_ESCAPED}
-                            Email__EmailSettings__From=${EMAIL_SETTINGS_FROM_ESCAPED}
-                            Email__EmailSettings__DisplayName=${EMAIL_SETTINGS_DISPLAY_NAME_ESCAPED}
-                            Email__ClientGmail__ClientId=${EMAIL_CLIENT_GMAIL_CLIENT_ID_ESCAPED}
-                            Email__ClientGmail__ProjectId=${EMAIL_CLIENT_GMAIL_PROJECT_ID_ESCAPED}
-                            Email__ClientGmail__AuthUri=${EMAIL_CLIENT_GMAIL_AUTH_URI_ESCAPED}
-                            Email__ClientGmail__TokenUri=${EMAIL_CLIENT_GMAIL_TOKEN_URI_ESCAPED}
-                            Email__ClientGmail__AuthProviderX509CertUrl=${EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_ESCAPED}
-                            Email__ClientGmail__ClientSecret=${EMAIL_CLIENT_GMAIL_CLIENT_SECRET_ESCAPED}
-                            Email__ClientGmail__JavascriptOrigins=${EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_ESCAPED}
-                            EOF
+MYSQL_PASSWORD=${MYSQL_PASSWORD_ESCAPED}
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD_ESCAPED}
+Jwt__Key=${JWT_KEY_ESCAPED}
+Jwt__Issuer=${JWT_ISSUER_ESCAPED}
+Jwt__Audience=${JWT_AUDIENCE_ESCAPED}
+OpenAI__ApiKey=${OPENAI_API_KEY_ESCAPED}
+UrlApi=${URL_API_ESCAPED}
+Email__EmailSettings__Host=${EMAIL_SETTINGS_HOST_ESCAPED}
+Email__EmailSettings__Port=${EMAIL_SETTINGS_PORT_ESCAPED}
+Email__EmailSettings__Username=${EMAIL_SETTINGS_USERNAME_ESCAPED}
+Email__EmailSettings__Password=${EMAIL_SETTINGS_PASSWORD_ESCAPED}
+Email__EmailSettings__From=${EMAIL_SETTINGS_FROM_ESCAPED}
+Email__EmailSettings__DisplayName=${EMAIL_SETTINGS_DISPLAY_NAME_ESCAPED}
+Email__ClientGmail__ClientId=${EMAIL_CLIENT_GMAIL_CLIENT_ID_ESCAPED}
+Email__ClientGmail__ProjectId=${EMAIL_CLIENT_GMAIL_PROJECT_ID_ESCAPED}
+Email__ClientGmail__AuthUri=${EMAIL_CLIENT_GMAIL_AUTH_URI_ESCAPED}
+Email__ClientGmail__TokenUri=${EMAIL_CLIENT_GMAIL_TOKEN_URI_ESCAPED}
+Email__ClientGmail__AuthProviderX509CertUrl=${EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_ESCAPED}
+Email__ClientGmail__ClientSecret=${EMAIL_CLIENT_GMAIL_CLIENT_SECRET_ESCAPED}
+Email__ClientGmail__JavascriptOrigins=${EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_ESCAPED}
+EOF
 
                             ssh -o StrictHostKeyChecking=no ${PROD_USER}@${PROD_HOST} "mkdir -p '${REMOTE_APP_DIR}'"
                             scp -o StrictHostKeyChecking=no "$TEMP_ENV_FILE" ${PROD_USER}@${PROD_HOST}:${REMOTE_APP_DIR}/.env

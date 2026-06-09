@@ -56,24 +56,24 @@ pipeline {
                 withCredentials([
                     string(credentialsId: env.MYSQL_PASSWORD_CREDENTIAL, variable: 'MYSQL_PASSWORD'),
                     string(credentialsId: env.MYSQL_ROOT_PASSWORD_CREDENTIAL, variable: 'MYSQL_ROOT_PASSWORD'),
-                    string(credentialsId: env.JWT__KEY_CREDENTIAL, variable: 'Jwt__Key'),
-                    string(credentialsId: env.JWT__ISSUER_CREDENTIAL, variable: 'Jwt__Issuer'),
-                    string(credentialsId: env.JWT__AUDIENCE_CREDENTIAL, variable: 'Jwt__Audience'),
-                    string(credentialsId: env.OPENAI__APIKEY_CREDENTIAL, variable: 'OpenAI__ApiKey'),
-                    string(credentialsId: env.URL_API, variable: 'UrlApi'),
-                    string(credentialsId: env.EMAIL__EMAILSETTINGS__HOST, variable: 'Email__EmailSettings__Host'),
-                    string(credentialsId: env.EMAIL__EMAILSETTINGS__PORT, variable: 'Email__EmailSettings__Port'),
-                    string(credentialsId: env.EMAIL__EMAILSETTINGS__USERNAME, variable: 'Email__EmailSettings__Username'),
-                    string(credentialsId: env.EMAIL__EMAILSETTINGS__PASSWORD, variable: 'Email__EmailSettings__Password'),
-                    string(credentialsId: env.EMAIL__EMAILSETTINGS__FROM, variable: 'Email__EmailSettings__From'),
-                    string(credentialsId: env.EMAIL__EMAILSETTINGS__DISPLAY_NAME, variable: 'Email__EmailSettings__DisplayName'),
-                    string(credentialsId: env.EMAIL__CLIENTGMAIL__CLIENT_ID, variable: 'Email__ClientGmail__ClientId'),
-                    string(credentialsId: env.EMAIL__CLIENTGMAIL__PROJECT_ID, variable: 'Email__ClientGmail__ProjectId'),
-                    string(credentialsId: env.EMAIL__CLIENTGMAIL__AUTH_URI, variable: 'Email__ClientGmail__AuthUri'),
-                    string(credentialsId: env.EMAIL__CLIENTGMAIL__TOKEN_URI, variable: 'Email__ClientGmail__TokenUri'),
-                    string(credentialsId: env.EMAIL__CLIENTGMAIL__AUTH_PROVIDER_X509_CERT_URL, variable: 'Email__ClientGmail__AuthProviderX509CertUrl'),
-                    string(credentialsId: env.EMAIL__CLIENTGMAIL__CLIENT_SECRET, variable: 'Email__ClientGmail__ClientSecret'),
-                    string(credentialsId: env.EMAIL__CLIENTGMAIL__JAVASCRIPT_ORIGINS, variable: 'Email__ClientGmail__JavascriptOrigins')
+                    string(credentialsId: env.JWT__KEY_CREDENTIAL, variable: 'JWT_KEY'),
+                    string(credentialsId: env.JWT__ISSUER_CREDENTIAL, variable: 'JWT_ISSUER'),
+                    string(credentialsId: env.JWT__AUDIENCE_CREDENTIAL, variable: 'JWT_AUDIENCE'),
+                    string(credentialsId: env.OPENAI__APIKEY_CREDENTIAL, variable: 'OPENAI_API_KEY'),
+                    string(credentialsId: env.URL_API, variable: 'URL_API_VALUE_BOUND'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__HOST, variable: 'EMAIL_SETTINGS_HOST'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__PORT, variable: 'EMAIL_SETTINGS_PORT'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__USERNAME, variable: 'EMAIL_SETTINGS_USERNAME'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__PASSWORD, variable: 'EMAIL_SETTINGS_PASSWORD'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__FROM, variable: 'EMAIL_SETTINGS_FROM'),
+                    string(credentialsId: env.EMAIL__EMAILSETTINGS__DISPLAY_NAME, variable: 'EMAIL_SETTINGS_DISPLAY_NAME'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__CLIENT_ID, variable: 'EMAIL_CLIENT_GMAIL_CLIENT_ID'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__PROJECT_ID, variable: 'EMAIL_CLIENT_GMAIL_PROJECT_ID'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__AUTH_URI, variable: 'EMAIL_CLIENT_GMAIL_AUTH_URI'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__TOKEN_URI, variable: 'EMAIL_CLIENT_GMAIL_TOKEN_URI'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__AUTH_PROVIDER_X509_CERT_URL, variable: 'EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__CLIENT_SECRET, variable: 'EMAIL_CLIENT_GMAIL_CLIENT_SECRET'),
+                    string(credentialsId: env.EMAIL__CLIENTGMAIL__JAVASCRIPT_ORIGINS, variable: 'EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS')
                 ]) {
                     sshagent(credentials: [env.SSH_CREDENTIALS]) {
                         sh '''
@@ -98,24 +98,24 @@ pipeline {
 
                             MYSQL_PASSWORD_VALUE=$(resolve_secret "$MYSQL_PASSWORD" "$MYSQL_PASSWORD_CREDENTIAL")
                             MYSQL_ROOT_PASSWORD_VALUE=$(resolve_secret "$MYSQL_ROOT_PASSWORD" "$MYSQL_ROOT_PASSWORD_CREDENTIAL")
-                            JWT_KEY_VALUE=$(resolve_secret "$Jwt__Key" "$JWT__KEY_CREDENTIAL")
-                            JWT_ISSUER_VALUE=$(resolve_secret "$Jwt__Issuer" "$JWT__ISSUER_CREDENTIAL")
-                            JWT_AUDIENCE_VALUE=$(resolve_secret "$Jwt__Audience" "$JWT__AUDIENCE_CREDENTIAL")
-                            OPENAI_API_KEY_VALUE=$(resolve_secret "$OpenAI__ApiKey" "$OPENAI__APIKEY_CREDENTIAL")
-                            URL_API_VALUE=$(resolve_secret "$UrlApi" "$URL_API")
-                            EMAIL_SETTINGS_HOST_VALUE=$(resolve_secret "$Email__EmailSettings__Host" "$EMAIL__EMAILSETTINGS__HOST")
-                            EMAIL_SETTINGS_PORT_VALUE=$(resolve_secret "$Email__EmailSettings__Port" "$EMAIL__EMAILSETTINGS__PORT")
-                            EMAIL_SETTINGS_USERNAME_VALUE=$(resolve_secret "$Email__EmailSettings__Username" "$EMAIL__EMAILSETTINGS__USERNAME")
-                            EMAIL_SETTINGS_PASSWORD_VALUE=$(resolve_secret "$Email__EmailSettings__Password" "$EMAIL__EMAILSETTINGS__PASSWORD")
-                            EMAIL_SETTINGS_FROM_VALUE=$(resolve_secret "$Email__EmailSettings__From" "$EMAIL__EMAILSETTINGS__FROM")
-                            EMAIL_SETTINGS_DISPLAY_NAME_VALUE=$(resolve_secret "$Email__EmailSettings__DisplayName" "$EMAIL__EMAILSETTINGS__DISPLAY_NAME")
-                            EMAIL_CLIENT_GMAIL_CLIENT_ID_VALUE=$(resolve_secret "$Email__ClientGmail__ClientId" "$EMAIL__CLIENTGMAIL__CLIENT_ID")
-                            EMAIL_CLIENT_GMAIL_PROJECT_ID_VALUE=$(resolve_secret "$Email__ClientGmail__ProjectId" "$EMAIL__CLIENTGMAIL__PROJECT_ID")
-                            EMAIL_CLIENT_GMAIL_AUTH_URI_VALUE=$(resolve_secret "$Email__ClientGmail__AuthUri" "$EMAIL__CLIENTGMAIL__AUTH_URI")
-                            EMAIL_CLIENT_GMAIL_TOKEN_URI_VALUE=$(resolve_secret "$Email__ClientGmail__TokenUri" "$EMAIL__CLIENTGMAIL__TOKEN_URI")
-                            EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_VALUE=$(resolve_secret "$Email__ClientGmail__AuthProviderX509CertUrl" "$EMAIL__CLIENTGMAIL__AUTH_PROVIDER_X509_CERT_URL")
-                            EMAIL_CLIENT_GMAIL_CLIENT_SECRET_VALUE=$(resolve_secret "$Email__ClientGmail__ClientSecret" "$EMAIL__CLIENTGMAIL__CLIENT_SECRET")
-                            EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_VALUE=$(resolve_secret "$Email__ClientGmail__JavascriptOrigins" "$EMAIL__CLIENTGMAIL__JAVASCRIPT_ORIGINS")
+                            JWT_KEY_VALUE=$(resolve_secret "$JWT_KEY" "$JWT__KEY_CREDENTIAL")
+                            JWT_ISSUER_VALUE=$(resolve_secret "$JWT_ISSUER" "$JWT__ISSUER_CREDENTIAL")
+                            JWT_AUDIENCE_VALUE=$(resolve_secret "$JWT_AUDIENCE" "$JWT__AUDIENCE_CREDENTIAL")
+                            OPENAI_API_KEY_VALUE=$(resolve_secret "$OPENAI_API_KEY" "$OPENAI__APIKEY_CREDENTIAL")
+                            URL_API_VALUE=$(resolve_secret "$URL_API_VALUE_BOUND" "$URL_API")
+                            EMAIL_SETTINGS_HOST_VALUE=$(resolve_secret "$EMAIL_SETTINGS_HOST" "$EMAIL__EMAILSETTINGS__HOST")
+                            EMAIL_SETTINGS_PORT_VALUE=$(resolve_secret "$EMAIL_SETTINGS_PORT" "$EMAIL__EMAILSETTINGS__PORT")
+                            EMAIL_SETTINGS_USERNAME_VALUE=$(resolve_secret "$EMAIL_SETTINGS_USERNAME" "$EMAIL__EMAILSETTINGS__USERNAME")
+                            EMAIL_SETTINGS_PASSWORD_VALUE=$(resolve_secret "$EMAIL_SETTINGS_PASSWORD" "$EMAIL__EMAILSETTINGS__PASSWORD")
+                            EMAIL_SETTINGS_FROM_VALUE=$(resolve_secret "$EMAIL_SETTINGS_FROM" "$EMAIL__EMAILSETTINGS__FROM")
+                            EMAIL_SETTINGS_DISPLAY_NAME_VALUE=$(resolve_secret "$EMAIL_SETTINGS_DISPLAY_NAME" "$EMAIL__EMAILSETTINGS__DISPLAY_NAME")
+                            EMAIL_CLIENT_GMAIL_CLIENT_ID_VALUE=$(resolve_secret "$EMAIL_CLIENT_GMAIL_CLIENT_ID" "$EMAIL__CLIENTGMAIL__CLIENT_ID")
+                            EMAIL_CLIENT_GMAIL_PROJECT_ID_VALUE=$(resolve_secret "$EMAIL_CLIENT_GMAIL_PROJECT_ID" "$EMAIL__CLIENTGMAIL__PROJECT_ID")
+                            EMAIL_CLIENT_GMAIL_AUTH_URI_VALUE=$(resolve_secret "$EMAIL_CLIENT_GMAIL_AUTH_URI" "$EMAIL__CLIENTGMAIL__AUTH_URI")
+                            EMAIL_CLIENT_GMAIL_TOKEN_URI_VALUE=$(resolve_secret "$EMAIL_CLIENT_GMAIL_TOKEN_URI" "$EMAIL__CLIENTGMAIL__TOKEN_URI")
+                            EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL_VALUE=$(resolve_secret "$EMAIL_CLIENT_GMAIL_AUTH_PROVIDER_X509_CERT_URL" "$EMAIL__CLIENTGMAIL__AUTH_PROVIDER_X509_CERT_URL")
+                            EMAIL_CLIENT_GMAIL_CLIENT_SECRET_VALUE=$(resolve_secret "$EMAIL_CLIENT_GMAIL_CLIENT_SECRET" "$EMAIL__CLIENTGMAIL__CLIENT_SECRET")
+                            EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS_VALUE=$(resolve_secret "$EMAIL_CLIENT_GMAIL_JAVASCRIPT_ORIGINS" "$EMAIL__CLIENTGMAIL__JAVASCRIPT_ORIGINS")
 
                             # Docker Compose interpreta $ em valores do .env.
                             # Escapamos para $$ para preservar segredos literais.
